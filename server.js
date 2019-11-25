@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
+const cTable = require('console.table');
 const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'Exit']
 const addEmployee = ['What is the first name?', 'What is the last name?', 'What is their role?', 'Who is their manager?']
 
@@ -36,7 +37,6 @@ const startApp = () => {
             case 'View all Employees':
                 showAll();
                 break;
-
             case 'View all Emplyees by Department':
                 showByDept();
                 break;
@@ -62,3 +62,15 @@ const startApp = () => {
     })
 }
 
+
+
+const showAll = () => {
+    const query = 'SELECT id, first_name AS "First Name", last_name AS "Last Name"  FROM employees';
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log(' ');
+        console.table('All Employees', res)
+        startApp();
+    })
+
+}
