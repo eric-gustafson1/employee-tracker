@@ -65,12 +65,45 @@ const startApp = () => {
 
 
 const showAll = () => {
-    const query = 'SELECT id, first_name AS "First Name", last_name AS "Last Name"  FROM employees';
+    const query = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.dept_name AS "Department", r.salary FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id;';
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.log(' ');
-        console.table('All Employees', res)
+        console.table(chalk.yellow('All Employees'), res)
         startApp();
     })
 
+}
+
+const showByDept = () => {
+    connection.query('SELECT * FROM departments', (err, results) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'dept_choice',
+                type: 'rawlist',
+                choices: function () {
+                    let choiceArray = results.map(choice => choice.dept_name)
+                    return choiceArray;
+                },
+                message: 'Select a Department to view.'
+            }
+        ]).then((answer) => {
+            let chosenDept;
+            for (let i = 0; i < results.length; i++) {
+                if (results[i].dept_name === answer.dept_choice) {
+                    chosenDept = results[i];
+                }
+            }
+
+            const query = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.dept_name AS "Department", r.salary FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE ?;';
+            connection.query(query, { dept_name: chosenDept.dept_name }, (err, res) => {
+                if (err) throw err;
+                console.log(' ');
+                console.table(chalk.yellow('All Employees by Department'), res)
+                startApp();
+            })
+        })
+    })
 }
