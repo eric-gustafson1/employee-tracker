@@ -65,7 +65,7 @@ const startApp = () => {
 
 
 const showAll = () => {
-    const query = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.dept_name AS "Department", r.salary FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id;';
+    const query = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title AS "Title", d.dept_name AS "Department", r.salary AS "Salary" FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id;';
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.log(' ');
@@ -76,7 +76,8 @@ const showAll = () => {
 }
 
 const showByDept = () => {
-    connection.query('SELECT * FROM departments', (err, results) => {
+    const deptQuery = 'SELECT * FROM departments';
+    connection.query(deptQuery, (err, results) => {
         if (err) throw err;
 
         inquirer.prompt([
@@ -87,7 +88,7 @@ const showByDept = () => {
                     let choiceArray = results.map(choice => choice.dept_name)
                     return choiceArray;
                 },
-                message: 'Select a Department to view.'
+                message: 'Select a Department to view:'
             }
         ]).then((answer) => {
             let chosenDept;
@@ -97,13 +98,41 @@ const showByDept = () => {
                 }
             }
 
-            const query = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.dept_name AS "Department", r.salary FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE ?;';
+            const query = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title AS "Title", d.dept_name AS "Department", r.salary AS "Salary" FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE ?;';
             connection.query(query, { dept_name: chosenDept.dept_name }, (err, res) => {
                 if (err) throw err;
                 console.log(' ');
-                console.table(chalk.yellow('All Employees by Department'), res)
+                console.table(chalk.yellow(`All Employees by Department: ${chosenDept.dept_name}`), res)
                 startApp();
             })
+        })
+    })
+}
+
+const showByManager = () => {
+    const mgrQuery = 'SELECT CONCAT (e.first_name," ",e.last_name) AS full_name, r.title, d.dept_name FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE dept_name = "Management";'
+    connection.query(mgrQuery, (err, results) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'mgr_choice',
+                type: 'rawlist',
+                choices: function () {
+                    let choiceArray = results.map(choice => choice.full_name)
+                    return choiceArray;
+                },
+                message: 'Select a Manager:'
+            }
+        ]).then((answer) => {
+            let chosenItem;
+            for (let i = 0; i < results.length; i++) {
+                if (results[i].full_name === answer.mgr_choice) {
+                    chosenItem = results[i];
+                }
+            }
+            // todo: figure out this query
+            const byMgrQuery = '';
         })
     })
 }
