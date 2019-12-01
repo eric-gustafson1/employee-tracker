@@ -3,7 +3,6 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const cTable = require('console.table');
 const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'Exit']
-// const allEmployeeQuery = 'SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title AS "Title", d.department_name AS "Department", r.salary AS "Salary" FROM employees e LEFT JOIN roles r ON r.id = e.role_id LEFT JOIN departments d ON d.id = r.department_id ORDER BY e.id;';
 const allEmployeeQuery = `SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.department_name AS "Department", IFNULL(r.salary, 'No Data') AS "Salary", CONCAT(m.first_name," ",m.last_name) AS "Manager"
 FROM employees e
 LEFT JOIN roles r 
@@ -189,7 +188,8 @@ const addEmployee = () => {
         ]).then((answer) => {
             connection.query(
                 `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES("${answer.fName}", "${answer.lName}", 
-                (SELECT id FROM roles WHERE title = "${answer.role}"), (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}")))`
+                (SELECT id FROM roles WHERE title = "${answer.role}"), 
+                (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}") AS tmptable))`
 
             )
 
@@ -200,4 +200,6 @@ const addEmployee = () => {
 
 }
 
-// const addEmployeeQuestions = ['What is the first name?', 'What is the last name?', 'What is their role?', 'Who is their manager?']
+const removeEmployee = () => {
+
+}
