@@ -25,7 +25,7 @@ FOREIGN KEY(role_id) REFERENCES roles(id),
 FOREIGN KEY(manager_id) REFERENCES employees(id)
 );
 
-INSERT INTO departments(dept_name)
+INSERT INTO departments(department_name)
 VALUES ('Management'),
 ('Sales'),
 ('Warehouse'),
