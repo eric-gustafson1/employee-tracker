@@ -261,6 +261,44 @@ const viewRoles = () => {
 }
 
 const addRole = () => {
+    const addRoleQuery = `SELECT * FROM roles; SELECT * FROM departments`
+    connection.query(addRoleQuery, (err, results) => {
+        if (err) throw err;
+
+        console.log('');
+        console.table(chalk.yellow('List of current Roles:'), results[0]);
+
+        inquirer.prompt([
+            {
+                name: 'newTitle',
+                type: 'input',
+                message: 'Enter the new Title:'
+            },
+            {
+                name: 'newSalary',
+                type: 'input',
+                message: 'Enter the salary for the new Title:'
+            },
+            {
+                name: 'dept',
+                type: 'list',
+                choices: function () {
+                    let choiceArray = results[1].map(choice => choice.department_name);
+                    return choiceArray;
+                },
+                message: 'Select the Department for this new Title:'
+            }
+        ]).then((answer) => {
+            console.log(answer)
+            connection.query(
+                `INSERT INTO roles(title, salary, department_id) 
+                VALUES
+                ("${answer.newTitle}", "${answer.newSalary}", 
+                (SELECT id FROM departments WHERE department_name = "${answer.dept}"));`
+            )
+
+        })
+    })
 
 }
 
@@ -280,7 +318,7 @@ removeRole = () => {
                 message: 'Select a Role to remove:'
             }
         ]).then((answer) => {
-            connection.query(`DELETE FROM roles WHERE ?`, { title: answer.removeRole });
+            connection.query(`DELETE FROM roles WHERE ? `, { title: answer.removeRole });
             startApp();
 
         })
@@ -316,7 +354,7 @@ const addDept = () => {
                 message: 'Enter the name of the Department to add:'
             }
         ]).then((answer) => {
-            connection.query(`INSERT INTO departments(department_name) VALUES( "${answer.newDept}")`)
+            connection.query(`INSERT INTO departments(department_name) VALUES("${answer.newDept}")`)
             startApp();
         })
     })
@@ -338,7 +376,7 @@ const removeDept = () => {
                 message: 'Select the department to remove:'
             }
         ]).then((answer) => {
-            connection.query(`DELETE FROM departments WHERE ?`, { department_name: answer.dept })
+            connection.query(`DELETE FROM departments WHERE ? `, { department_name: answer.dept })
             startApp();
         })
     })
