@@ -2,7 +2,7 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const cTable = require('console.table');
-const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'View all Roles', 'Add Role', 'Remove Role', 'Exit']
+const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'View all Roles', 'Add Role', 'Remove Role', 'View all Departments', 'Add Department', 'Remove Department', 'Exit']
 const allEmployeeQuery = `SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.department_name AS "Department", IFNULL(r.salary, 'No Data') AS "Salary", CONCAT(m.first_name," ",m.last_name) AS "Manager"
 FROM employees e
 LEFT JOIN roles r 
@@ -76,6 +76,15 @@ const startApp = () => {
             case 'Remove Role':
                 removeRole();
                 break;
+            case 'View all Departments':
+                viewDept();
+                break;
+            case 'Add Department':
+                addDept();
+                break;
+            case 'Remove Department':
+                removeDept();
+                break;
             case 'Exit':
                 connection.end();
                 break;
@@ -86,10 +95,10 @@ const startApp = () => {
 
 
 const showAll = () => {
-    connection.query(allEmployeeQuery, (err, res) => {
+    connection.query(allEmployeeQuery, (err, results) => {
         if (err) throw err;
         console.log(' ');
-        console.table(chalk.yellow('All Employees'), res)
+        console.table(chalk.yellow('All Employees'), results)
         startApp();
     })
 
@@ -214,10 +223,10 @@ const addEmployee = () => {
 }
 
 const removeEmployee = () => {
-    connection.query(allEmployeeQuery, (err, res) => {
+    connection.query(allEmployeeQuery, (err, results) => {
         if (err) throw err;
         console.log(' ');
-        console.table(chalk.yellow('All Employees'), res)
+        console.table(chalk.yellow('All Employees'), results)
         inquirer.prompt([
             {
                 name: 'IDtoRemove',
@@ -240,12 +249,12 @@ const updateManager = () => {
 }
 
 const viewRoles = () => {
-    query = `SELECT title AS "Title" FROM roles`;
+    let query = `SELECT title AS "Title" FROM roles`;
     connection.query(query, (err, results) => {
         if (err) throw err;
 
         console.log(' ');
-        console.table(chalk.yellow('All Roles'), results)
+        console.table(chalk.yellow('All Roles'), results);
         startApp();
     })
 
@@ -256,6 +265,30 @@ const addRole = () => {
 }
 
 removeRole = () => {
+    query = `SELECT * FROM roles`;
+    connection.query(query, (err, results) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'removeRole',
+                type: 'list',
+                choices: function () {
+                    let choiceArray = results.map(choice => choice.title);
+                    return choiceArray;
+                },
+                message: 'Select a Role to remove:'
+            }
+        ]).then((answer) => {
+            console.log(answer.removeRole)
+            connection.query(`DELETE FROM roles WHERE ?`, { title: answer.removeRole });
+            startApp();
+
+        })
+
+    })
 
 }
 
+
+// (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}") AS tmptable))`
