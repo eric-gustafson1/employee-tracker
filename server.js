@@ -301,6 +301,27 @@ const viewDept = () => {
     })
 }
 
+const addDept = () => {
+    query = `SELECT department_name AS "Departments" FROM departments`;
+    connection.query(query, (err, results) => {
+        if (err) throw err;
+
+        console.log('');
+        console.table(chalk.yellow('List of current Departments'), results);
+
+        inquirer.prompt([
+            {
+                name: 'newDept',
+                type: 'input',
+                message: 'Enter the name of the Department to add:'
+            }
+        ]).then((answer) => {
+            connection.query(`INSERT INTO departments(department_name) VALUES( "${answer.newDept}")`)
+            startApp();
+        })
+    })
+}
+
 const removeDept = () => {
     query = `SELECT * FROM departments`;
     connection.query(query, (err, results) => {
