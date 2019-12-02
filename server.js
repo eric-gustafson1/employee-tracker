@@ -15,6 +15,7 @@ const addEmployeeQuestions = ['What is the first name?', 'What is the last name?
 const roleQuery = 'SELECT * from roles; SELECT CONCAT (e.first_name," ",e.last_name) AS full_name, r.title, d.department_name FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE department_name = "Management"'
 const mgrQuery = 'SELECT CONCAT (e.first_name," ",e.last_name) AS full_name, r.title, d.department_name FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE department_name = "Management";'
 
+
 const connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
@@ -134,14 +135,21 @@ const showByManager = () => {
                 message: 'Select a Manager:'
             }
         ]).then((answer) => {
-            let chosenMgr;
-            for (let i = 0; i < results.length; i++) {
-                if (results[i].full_name === answer.mgr_choice) {
-                    chosenMgr = results[i];
-                }
-            }
-            // todo: figure out this query
-            // const byMgrQuery = '';
+            const mgrQuery2 = `SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", IFNULL(r.title, "No Data") AS "Title", IFNULL(d.department_name, "No Data") AS "Department", IFNULL(r.salary, 'No Data') AS "Salary", CONCAT(m.first_name," ",m.last_name) AS "Manager"
+                FROM employees e
+                LEFT JOIN roles r 
+                ON r.id = e.role_id 
+                LEFT JOIN departments d 
+                ON d.id = r.department_id
+                LEFT JOIN employees m ON m.id = e.manager_id
+                WHERE CONCAT(m.first_name," ",m.last_name) = "${answer.mgr_choice}"
+                ORDER BY e.id;`
+            connection.query(mgrQuery2, (err, results) => {
+                if (err) throw err;
+                console.log(' ');
+                console.table(chalk.yellow('Employees by Manager'), results);
+                startApp();
+            })
         })
     })
 }
@@ -149,9 +157,6 @@ const showByManager = () => {
 const addEmployee = () => {
     connection.query(roleQuery, (err, results) => {
         if (err) throw err;
-
-        console.log(results[0]);
-        console.log(results[1]);
 
         inquirer.prompt([
             {
@@ -190,7 +195,6 @@ const addEmployee = () => {
                 `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES("${answer.fName}", "${answer.lName}", 
                 (SELECT id FROM roles WHERE title = "${answer.role}"), 
                 (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}") AS tmptable))`
-
             )
 
             startApp();
