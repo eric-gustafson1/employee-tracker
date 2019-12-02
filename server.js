@@ -280,7 +280,6 @@ removeRole = () => {
                 message: 'Select a Role to remove:'
             }
         ]).then((answer) => {
-            console.log(answer.removeRole)
             connection.query(`DELETE FROM roles WHERE ?`, { title: answer.removeRole });
             startApp();
 
@@ -300,4 +299,27 @@ const viewDept = () => {
         console.table(chalk.yellow('All Departments'), results)
         startApp();
     })
+}
+
+const removeDept = () => {
+    query = `SELECT * FROM departments`;
+    connection.query(query, (err, results) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'dept',
+                type: 'list',
+                choices: function () {
+                    let choiceArray = results.map(choice => choice.department_name);
+                    return choiceArray;
+                },
+                message: 'Select the department to remove:'
+            }
+        ]).then((answer) => {
+            connection.query(`DELETE FROM departments WHERE ?`, { department_name: answer.dept })
+            startApp();
+        })
+    })
+
 }
