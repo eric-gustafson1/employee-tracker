@@ -291,4 +291,13 @@ removeRole = () => {
 }
 
 
-// (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}") AS tmptable))`
+const viewDept = () => {
+    query = `SELECT department_name AS "Departments" FROM departments`;
+    connection.query(query, (err, results) => {
+        if (err) throw err;
+
+        console.log('');
+        console.table(chalk.yellow('All Departments'), results)
+        startApp();
+    })
+}
