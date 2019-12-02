@@ -2,7 +2,7 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const cTable = require('console.table');
-const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'Exit']
+const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'View all Roles', 'Add Role', 'Remove Role', 'Exit']
 const allEmployeeQuery = `SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.department_name AS "Department", IFNULL(r.salary, 'No Data') AS "Salary", CONCAT(m.first_name," ",m.last_name) AS "Manager"
 FROM employees e
 LEFT JOIN roles r 
@@ -67,6 +67,15 @@ const startApp = () => {
             case 'Update Employee Manager':
                 updateManager();
                 break;
+            case 'View all Roles':
+                viewRoles();
+                break;
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Remove Role':
+                removeRole();
+                break;
             case 'Exit':
                 connection.end();
                 break;
@@ -94,7 +103,7 @@ const showByDept = () => {
         inquirer.prompt([
             {
                 name: 'deptChoice',
-                type: 'rawlist',
+                type: 'list',
                 choices: function () {
                     let choiceArray = results.map(choice => choice.department_name)
                     return choiceArray;
@@ -127,7 +136,7 @@ const showByManager = () => {
         inquirer.prompt([
             {
                 name: 'mgr_choice',
-                type: 'rawlist',
+                type: 'list',
                 choices: function () {
                     let choiceArray = results.map(choice => choice.full_name);
                     return choiceArray;
@@ -172,7 +181,7 @@ const addEmployee = () => {
             },
             {
                 name: 'role',
-                type: 'rawlist',
+                type: 'list',
                 choices: function () {
                     let choiceArray = results[0].map(choice => choice.title);
                     return choiceArray;
@@ -182,7 +191,7 @@ const addEmployee = () => {
             },
             {
                 name: 'manager',
-                type: 'rawlist',
+                type: 'list',
                 choices: function () {
                     let choiceArray = results[1].map(choice => choice.full_name);
                     return choiceArray;
@@ -205,5 +214,48 @@ const addEmployee = () => {
 }
 
 const removeEmployee = () => {
+    connection.query(allEmployeeQuery, (err, res) => {
+        if (err) throw err;
+        console.log(' ');
+        console.table(chalk.yellow('All Employees'), res)
+        inquirer.prompt([
+            {
+                name: 'IDtoRemove',
+                type: 'input',
+                message: 'Enter the Employee ID of the person to remove:'
+            }
+        ]).then((answer) => {
+            connection.query(`DELETE FROM employees where ?`, { id: answer.IDtoRemove })
+            startApp();
+        })
+    })
+}
+
+const updateRole = () => {
 
 }
+
+const updateManager = () => {
+
+}
+
+const viewRoles = () => {
+    query = `SELECT title AS "Title" FROM roles`;
+    connection.query(query, (err, results) => {
+        if (err) throw err;
+
+        console.log(' ');
+        console.table(chalk.yellow('All Roles'), results)
+        startApp();
+    })
+
+}
+
+const addRole = () => {
+
+}
+
+removeRole = () => {
+
+}
+
