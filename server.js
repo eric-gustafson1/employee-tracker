@@ -160,9 +160,9 @@ const showByManager = () => {
                 LEFT JOIN departments d 
                 ON d.id = r.department_id
                 LEFT JOIN employees m ON m.id = e.manager_id
-                WHERE CONCAT(m.first_name," ",m.last_name) = "${answer.mgr_choice}"
+                WHERE CONCAT(m.first_name," ",m.last_name) = ?
                 ORDER BY e.id;`
-            connection.query(mgrQuery2, (err, results) => {
+            connection.query(mgrQuery2, [answer.mgr_choice], (err, results) => {
                 if (err) throw err;
                 console.log(' ');
                 console.table(chalk.yellow('Employees by Manager'), results);
