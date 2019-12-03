@@ -214,7 +214,6 @@ const addEmployee = () => {
                 (SELECT id FROM roles WHERE title = "${answer.role}"), 
                 (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}") AS tmptable))`
             )
-
             startApp();
         })
     })
@@ -241,8 +240,42 @@ const removeEmployee = () => {
 }
 
 const updateRole = () => {
+    const query = `SELECT CONCAT (first_name," ",last_name) AS full_name FROM employees; SELECT title FROM roles`
+    connection.query(query, (err, results) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: 'empl',
+                type: 'list',
+                choices: function () {
+                    let choiceArray = results[0].map(choice => choice.full_name);
+                    return choiceArray;
+                },
+                message: 'Select an employee to update their role:'
+            },
+            {
+                name: 'newRole',
+                type: 'list',
+                choices: function () {
+                    let choiceArray = results[1].map(choice => choice.title);
+                    return choiceArray;
+                }
+            }
+        ]).then((answer) => {
+            connection.query(`UPDATE employees 
+            SET role_id = (SELECT id FROM roles WHERE title = ? ) 
+            WHERE id = (SELECT id FROM(SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ?) AS tmptable)`, [answer.newRole, answer.empl], (err, results) => {
+                    if (err) throw err;
+                    startApp();
+                })
+        })
+
+
+    })
 
 }
+
 
 const updateManager = () => {
 
@@ -289,13 +322,13 @@ const addRole = () => {
                 message: 'Select the Department for this new Title:'
             }
         ]).then((answer) => {
-            console.log(answer)
             connection.query(
                 `INSERT INTO roles(title, salary, department_id) 
                 VALUES
                 ("${answer.newTitle}", "${answer.newSalary}", 
                 (SELECT id FROM departments WHERE department_name = "${answer.dept}"));`
             )
+            startApp();
 
         })
     })
@@ -354,7 +387,7 @@ const addDept = () => {
                 message: 'Enter the name of the Department to add:'
             }
         ]).then((answer) => {
-            connection.query(`INSERT INTO departments(department_name) VALUES("${answer.newDept}")`)
+            connection.query(`INSERT INTO departments(department_name) VALUES( ? )`, answer.newDept)
             startApp();
         })
     })
