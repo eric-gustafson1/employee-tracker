@@ -210,9 +210,9 @@ const addEmployee = () => {
             }
         ]).then((answer) => {
             connection.query(
-                `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES("${answer.fName}", "${answer.lName}", 
-                (SELECT id FROM roles WHERE title = "${answer.role}"), 
-                (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = "${answer.manager}") AS tmptable))`
+                `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES(?, ?, 
+                (SELECT id FROM roles WHERE title = ? ), 
+                (SELECT id FROM (SELECT id FROM employees WHERE CONCAT(first_name," ",last_name) = ? ) AS tmptable))`, [answer.fName, answer.lName, answer.role, answer.manager]
             )
             startApp();
         })
