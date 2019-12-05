@@ -25,19 +25,3 @@ FOREIGN KEY(role_id) REFERENCES roles(id),
 FOREIGN KEY(manager_id) REFERENCES employees(id)
 );
 
-INSERT INTO departments(department_name)
-VALUES ('Management'),
-('Sales'),
-('Warehouse'),
-('Human Resources'),
-('Quality Control');
-
-INSERT INTO roles(title)
-VALUES('Regional Manager'),
-('Sales Rep'),
-('HR Rep');
-
-INSERT INTO employees(first_name, last_name)
-VALUES('Pam', 'Beesly'),
-('Michael', 'Scott'),
-('Jim', 'Halpert');
