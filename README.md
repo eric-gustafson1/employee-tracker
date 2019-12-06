@@ -10,6 +10,7 @@ A solution for managing a company's employees using node, inquirer, and MySQL
   * Delete departments, roles, employees
 
 # Visuals
+![employee-tracker](img/screenShot.png)
 
 # Usage
 
