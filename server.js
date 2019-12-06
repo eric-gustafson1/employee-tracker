@@ -2,7 +2,8 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const cTable = require('console.table');
-const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'Update Employee Manager', 'View all Roles', 'Add Role', 'Remove Role', 'View all Departments', 'Add Department', 'Remove Department', 'Exit']
+const connection = require('./config/connection')
+const startScreen = ['View all Employees', 'View all Emplyees by Department', 'View all Employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Role', 'View all Roles', 'Add Role', 'Remove Role', 'View all Departments', 'Add Department', 'Remove Department', 'Exit']
 const allEmployeeQuery = `SELECT e.id, e.first_name AS "First Name", e.last_name AS "Last Name", r.title, d.department_name AS "Department", IFNULL(r.salary, 'No Data') AS "Salary", CONCAT(m.first_name," ",m.last_name) AS "Manager"
 FROM employees e
 LEFT JOIN roles r 
@@ -16,26 +17,7 @@ const roleQuery = 'SELECT * from roles; SELECT CONCAT (e.first_name," ",e.last_n
 const mgrQuery = 'SELECT CONCAT (e.first_name," ",e.last_name) AS full_name, r.title, d.department_name FROM employees e INNER JOIN roles r ON r.id = e.role_id INNER JOIN departments d ON d.id = r.department_id WHERE department_name = "Management";'
 
 
-const connection = mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'root',
-    database: 'employee_db',
-    multipleStatements: true
-});
 
-connection.connect((err) => {
-    if (err) {
-        console.log(chalk.white.bgRed(err));
-        return;
-    }
-
-    console.log(chalk.green(`Connected to db. ThreadID: ${connection.threadId}`));
-    startApp();
-
-
-})
 
 const startApp = () => {
     inquirer.prompt({
@@ -63,9 +45,6 @@ const startApp = () => {
                 break;
             case 'Update Employee Role':
                 updateRole();
-                break;
-            case 'Update Employee Manager':
-                updateManager();
                 break;
             case 'View all Roles':
                 viewRoles();
@@ -276,11 +255,6 @@ const updateRole = () => {
 
 }
 
-
-const updateManager = () => {
-
-}
-
 const viewRoles = () => {
     let query = `SELECT title AS "Title" FROM roles`;
     connection.query(query, (err, results) => {
@@ -415,3 +389,5 @@ const removeDept = () => {
     })
 
 }
+
+startApp();

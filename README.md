@@ -94,7 +94,6 @@ node server.js
 # What I Learned
 
 * SQL queries for Create, Read, Update, and Delete (CRUD)
-* Basic Object-Relational Mapping (ORM)
 * Using NPM mysql module to interact with a MySQL backend
 * Hosting a mysql application on Heroku
 * Creating SQL schema and seed files
