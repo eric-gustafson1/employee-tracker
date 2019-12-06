@@ -6,6 +6,8 @@ A solution for managing a company's employees using node, inquirer, and MySQL
   * Add departments, roles, employees
   * View departments, roles, employees
   * Update employee roles
+  * View employees by manager
+  * Delete departments, roles, employees
 
 # Visuals
 
@@ -91,7 +93,6 @@ node server.js
 
 # What I Learned
 
-* Model View Controller (MVC) structure, although this is a CLI application
 * SQL queries for Create, Read, Update, and Delete (CRUD)
 * Basic Object-Relational Mapping (ORM)
 * Using NPM mysql module to interact with a MySQL backend
@@ -99,3 +100,9 @@ node server.js
 * Creating SQL schema and seed files
 
 # Links to Project
+
+##### GitHub
+[employee-tracker] (https://github.com/eric-gustafson1/employee-tracker)
+
+##### Heroku
+[employee-tracker] ()
