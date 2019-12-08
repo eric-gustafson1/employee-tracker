@@ -102,4 +102,4 @@ node server.js
 # Links to Project
 
 ##### GitHub
-[employee-tracker] (https://github.com/eric-gustafson1/employee-tracker)
+[employee-tracker](https://github.com/eric-gustafson1/employee-tracker)
