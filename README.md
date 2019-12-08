@@ -103,6 +103,3 @@ node server.js
 
 ##### GitHub
 [employee-tracker] (https://github.com/eric-gustafson1/employee-tracker)
-
-##### Heroku
-[employee-tracker] ()
